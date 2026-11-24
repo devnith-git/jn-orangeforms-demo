@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>JN Group OrangeForms Prototype</title>
+<style>
+  :root { --orange:#e8650e; --ink:#1f2937; --quiet:#6b7280; --line:#e5e7eb; --bar:#ffffff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; background:#f4f4f5; color:var(--ink);
+         font:14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { display:flex; align-items:center; gap:16px; padding:8px 16px; background:var(--bar);
+           border-bottom:1px solid var(--line); border-top:3px solid var(--orange); flex:none; }
+  .brand { font-weight:600; white-space:nowrap; }
+  .brand small { display:block; font-weight:400; color:var(--quiet); font-size:12px; }
+  nav { display:flex; gap:6px; overflow-x:auto; flex:1; scrollbar-width:thin; padding:2px 0; }
+  nav a { display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:18px; white-space:nowrap;
+          color:var(--quiet); text-decoration:none; border:1px solid transparent; font-size:13px; }
+  nav a .n { display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%;
+             background:#eef0f3; color:var(--ink); font-size:11.5px; font-weight:600; }
+  nav a:hover { background:#f7f7f8; color:var(--ink); }
+  nav a[aria-current="step"] { color:var(--orange); border-color:#f5c9a4; background:#fff3e8; font-weight:600; }
+  nav a[aria-current="step"] .n { background:var(--orange); color:#fff; }
+  .actions { display:flex; gap:6px; flex:none; }
+  button, .open { font:inherit; font-size:13px; border-radius:18px; padding:6px 14px; cursor:pointer;
+                  border:1.5px solid var(--orange); background:#fff; color:var(--orange); text-decoration:none; white-space:nowrap; }
+  button.primary { background:var(--orange); color:#fff; }
+  button:disabled { opacity:.35; cursor:default; }
+  main { flex:1; position:relative; }
+  iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#faf9f5; }
+  @media (max-width: 760px) {
+    header { flex-wrap:wrap; gap:8px; }
+    nav { order:3; flex-basis:100%; }
+    nav a .t { display:none; }
+    .open { display:none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">JN Group OrangeForms<small>Prototype walkthrough</small></div>
+  <nav id="steps" aria-label="Demo steps"></nav>
+  <div class="actions">
+    <button id="prev" type="button">Back</button>
+    <button id="next" type="button" class="primary">Next</button>
+    <a id="open" class="open" target="_blank" rel="noopener">Open full screen</a>
+  </div>
+</header>
+<main><iframe id="frame" title="Prototype screen"></iframe></main>
+
+<script>
+  // Edit this list to add, remove or reorder demos. Files live in the demos/ folder.
+  var STEPS = [
+    { file: "1-recruitment.html",               label: "Recruitment" },
+    { file: "2-preboarding.html",               label: "Preboarding" },
+    { file: "3-candidate-preboarding.html",     label: "Candidate preboarding" },
+    { file: "4-add-as-employee.html",           label: "Add as employee" },
+    { file: "5-candidate-onboarding-forms.html",label: "Onboarding forms" },
+    { file: "6-supervisor-hr-signoff.html",     label: "Sign-off" }
+  ];
+
+  var nav = document.getElementById("steps"), frame = document.getElementById("frame"),
+      prev = document.getElementById("prev"), next = document.getElementById("next"),
+      open = document.getElementById("open");
+
+  STEPS.forEach(function (s, i) {
+    var a = document.createElement("a");
+    a.href = "#" + (i + 1);
+    a.innerHTML = '<span class="n">' + (i + 1) + '</span><span class="t"></span>';
+    a.querySelector(".t").textContent = s.label;
+    nav.appendChild(a);
+  });
+
+  function current() {
+    var n = parseInt(location.hash.slice(1), 10);
+    return (n >= 1 && n <= STEPS.length) ? n - 1 : 0;
+  }
+
+  function show() {
+    var i = current(), src = "demos/" + STEPS[i].file;
+    if (frame.getAttribute("src") !== src) frame.setAttribute("src", src);
+    open.href = src;
+    document.title = STEPS[i].label + " | JN Group OrangeForms Prototype";
+    Array.prototype.forEach.call(nav.children, function (a, j) {
+      if (j === i) { a.setAttribute("aria-current", "step"); a.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+      else a.removeAttribute("aria-current");
+    });
+    prev.disabled = i === 0;
+    next.disabled = i === STEPS.length - 1;
+  }
+
+  prev.onclick = function () { location.hash = "#" + current(); };
+  next.onclick = function () { location.hash = "#" + (current() + 2); };
+  window.addEventListener("hashchange", show);
+  show();
+</script>
+</body>
+</html>
